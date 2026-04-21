@@ -55,7 +55,7 @@ void terminar_procesos(void){
         kill(g_process_telefonos_table[i].pid, SIGTERM);
     }
     // Esperar a que mueran
-    for(int i = 0; i < g_telefonosProcesses; i++){
+    for(int i = 0; i < g_telefonosProcesses; i++){  
         waitpid(g_process_telefonos_table[i].pid, NULL, 0);
     }
 }
@@ -83,12 +83,14 @@ void iniciar_tabla_procesos(int n_procesos_telefono, int n_procesos_linea){
     g_process_lineas_table    = malloc(n_procesos_linea * sizeof(struct TProcess_t));
 }
 void lanzar_proceso_telefono(const int indice_tabla){
+        char Cola[32];
+         snprintf(Cola, sizeof(Cola), "%s%d", BUZON_LINEAS, indice_tabla);
        pid_t pid_hijo=fork();
         if(pid_hijo<0){
             perror("fork");
             exit(1);
         }if (pid_hijo==0){
-            execl(RUTA_TELEFONO,CLASE_TELEFONO,NULL);
+            execl(RUTA_TELEFONO,CLASE_TELEFONO,Cola,NULL);
             perror("execl");
             exit(1);
         }
