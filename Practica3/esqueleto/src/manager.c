@@ -41,16 +41,16 @@ void liberar_recursos(){
     {
         sprintf(Identificador, "%s%d", BUZON_LINEAS, i);
         mq_close(qHandlerLineas[i]);
-        mq_unlink(BUZON_LINEAS);
+        mq_unlink(Identificador);
     }
     mq_close(qHandlerLlamadas);
     mq_unlink(BUZON_LLAMADAS);
     free(g_process_telefonos_table);
     free(g_process_lineas_table);
-    printf("[MANAGER] Terminacion del programa (todos los procesos terminados)");
+    printf("[MANAGER] Terminacion del programa (todos los procesos terminados)\n");
 }
 void terminar_procesos(void){
-    printf("-------------------[MANAGER] Terminar con cualquier proceso pendiente ejecutándose-------------------");
+    printf("-------------------[MANAGER] Terminación de programa mediante Ctrl+c \n");
    for(int i = 0; i < g_telefonosProcesses; i++){
         kill(g_process_telefonos_table[i].pid, SIGTERM);
     }
@@ -79,23 +79,24 @@ void instalar_manejador_senhal(){
 void iniciar_tabla_procesos(int n_procesos_telefono, int n_procesos_linea){
      printf("[Manager] Número de teléfonos creados %d\n", n_procesos_telefono );
     g_process_telefonos_table = malloc(n_procesos_telefono * sizeof(struct TProcess_t));
-    printf("[Manager] Número de teléfonos creados %d\n", n_procesos_linea );
+    printf("[Manager] Número de línea creados %d\n", n_procesos_linea );
     g_process_lineas_table    = malloc(n_procesos_linea * sizeof(struct TProcess_t));
 }
 void lanzar_proceso_telefono(const int indice_tabla){
-        char Cola[32];
-         snprintf(Cola, sizeof(Cola), "%s%d", BUZON_LINEAS, indice_tabla);
+        //char Cola[32];
+        //snprintf(Cola, sizeof(Cola), "%s%d", BUZON_LINEAS, indice_tabla);
        pid_t pid_hijo=fork();
         if(pid_hijo<0){
             perror("fork");
             exit(1);
         }if (pid_hijo==0){
-            execl(RUTA_TELEFONO,CLASE_TELEFONO,Cola,NULL);
+            execl(RUTA_TELEFONO,CLASE_TELEFONO,NULL);
             perror("execl");
             exit(1);
         }
         g_process_telefonos_table[indice_tabla].pid = pid_hijo;
         g_process_telefonos_table[indice_tabla].clase = CLASE_TELEFONO;
+        g_telefonosProcesses++;
 }
 void lanzar_proceso_linea(const int indice_tabla){
     pid_t pid_hijo=fork();
